@@ -1,0 +1,41 @@
+<?php
+
+namespace App\Http\Controllers\Auth;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+namespace App\Http\Controllers\Auth;
+
+use App\Http\Controllers\Controller;
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
+
+class ApiAuthController extends Controller
+{
+        public function login(Request $request)
+        {
+            $credentials = $request->only('email', 'password');
+    
+            if (Auth::attempt($credentials)) {
+                $user = Auth::user();
+                $token = $user->createToken('Personal Access Token')->plainTextToken;
+    
+                return response()->json(['token' => $token]);
+            }
+    
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+    
+        public function register(Request $request)
+        {
+            $data = $request->only('name', 'email', 'password');
+            $data['password'] = Hash::make($data['password']);
+    
+            $user = User::create($data);
+            $token = $user->createToken('Personal Access Token')->plainTextToken;
+    
+            return response()->json(['token' => $token]);
+        }
+    }
